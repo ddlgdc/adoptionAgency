@@ -1,8 +1,8 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, BooleanField, IntegerField, TextAreaField
-from wtforms.validators import DataRequired, URL
+from wtforms.validators import DataRequired, URL, Optional, AnyOf, NumberRange
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///adopt.db' 
@@ -11,11 +11,22 @@ db = SQLAlchemy(app)
 
 class AddPetForm(FlaskForm):
     name = StringField('Pet Name', validators=[DataRequired()])
-    species = StringField('Species', validators=[DataRequired()])
-    photo_url = StringField('Photo URL', validators=[URL()])
-    age = IntegerField('Age')
+    species = StringField('Species', validators=[DataRequired(), AnyOf(['cat', 'dog', 'porcupine'])])
+    photo_url = StringField('Photo URL', validators=[Optional(), URL()])
+    age = IntegerField('Age', validators=[Optional(), NumberRange(min=0, max=30)])
     notes = TextAreaField('Notes')
     available = BooleanField('Available')
+
+app.route('/<int:pet_id>', methods=['GET', 'POST'])
+def view_pet(pet_id):
+    pet = Pet.query.get(pet_id)
+    form = AddPetForm(obj=pet)
+
+    if request.method == 'POST' and form.validate():
+        form.populate_obj(pet)
+        db.session.commit()
+        return redirect(url_for('index'))
+    return render_template('view_pet.html', pet=pet, form=form)
 
 class Pet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -54,6 +65,7 @@ def add_pet():
         db.session.commit()
         return redirect(url_for('index'))
     return render_template('add_pet.html', form=form)
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=0)
