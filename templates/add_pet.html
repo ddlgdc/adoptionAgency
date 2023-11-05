@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Pet</title>
+</head>
+<body>
+    <h1>Add a New Pet</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.name.label }} {{ form.name(size=40) }}
+        </div>
+        <div>
+            {{ form.species.label }} {{ form.species(size=40) }}
+        </div>
+        <div>
+            {{ form.photo_url.label }} {{ form.photo_url(size=40) }}
+        </div>
+        <div>
+            {{ form.age.label }} {{ form.age(size=5) }}
+        </div>
+        <div>
+            {{ form.notes.label }} {{ form.notes(rows=4, cols=40) }}
+        </div>
+        <div>
+            {{ form.available.label }} {{ form.available }}
+        </div>
+        <div>
+            <input type="submit" value="Add Pet">
+        </div>
+    </form>
+</body>
+</html>
